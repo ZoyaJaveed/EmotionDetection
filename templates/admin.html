@@ -1,0 +1,193 @@
+<html>
+<head>
+<title>Emotion Adder</title>
+<script type="text/javascript" src="static/js/jquery.min.js"></script>
+<script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+<link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="static/css/jumbotron.css">
+<link type="text/css" rel="stylesheet" href="static/css/HoldOn.min.css"/>
+<script type="text/javascript" src="static/js/HoldOn.min.js"></script>
+<link rel="stylesheet" href="static/css/font-awesome.min.css">
+
+<script type="text/javascript">	
+	$(document).ready(function() {
+		$('.add-emotion').click(function() {
+			var that = this;
+			$.ajax({
+				url: "/addEmotion",
+				type:'POST',
+				beforeSend: function() {
+					if(!$("#emotion-text").val()) {
+						alert("Enter text to Add");
+						return false;
+					}
+		          HoldOn.open({
+		              theme:"sk-rectangle",
+		              message:"<h4>Please Wait.. Adding Emotion..!</h4>"
+		          });
+					return true;
+				},
+				data : {data : $("#emotion-text").val(), emotion: $(that).attr('data-emotion')},
+				success: function(data) {
+					console.log(data);
+					alert("Successfully Added!");
+				},
+				complete: function() {
+					console.log("Completed");
+					HoldOn.close();
+				}
+			});
+		})
+	}) 
+</script>
+
+</head>
+  <body>
+  
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Emotion Finder (Naive Bayes)</a>
+        </div>
+		
+		<div id="navbar" class="navbar-collapse collapse">
+          <div class="navbar-form navbar-right">
+		    <a href="/" class="btn btn-danger">Sign out</a>
+          </div>
+        </div><!--/.navbar-collapse -->
+        <div id="navbar" class="navbar-collapse collapse">
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1>Add Emotion to Machine</h1>
+        <p>In machine learning, naive Bayes classifiers are a family of simple probabilistic classifiers based on applying Bayes' theorem with strong (naive) independence assumptions between the features.</p>
+        <p><a class="btn btn-primary btn-lg" href="/" role="button">Test Dataset &raquo;</a></p>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="col-md-12" id="input-container">
+          <h2>Add Emotion</h2>
+          	<textarea id="emotion-text" class="form-control" rows="4" cols="10"></textarea>
+          	<br>
+          	<button type="button" class="btn btn-success add-emotion" data-emotion='happy'>Add Emotion to Happy</button>
+          	<button type="button" class="btn btn-success add-emotion" data-emotion='sad'>Add Emotion to Sad</button>
+          	<button type="button" class="btn btn-success add-emotion" data-emotion='anger'>Add Emotion to Anger</button>
+          	<button type="button" class="btn btn-success add-emotion" data-emotion='surprise'>Add Emotion to Surprise</button>
+          	<button type="button" class="btn btn-success add-emotion" data-emotion='fear'>Add Emotion to Fear</button>
+          <!-- <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p> -->
+        </div>
+      </div>
+	  <div class="row" style="text-align:center">
+		<h1> OR </h1>
+	  </div>
+
+	        <div class="row">
+        <div class="col-md-12" id="input-container">
+          <h2>Upload emotion file</h2>
+          	
+          	<div style="border:1px solid #ccc; border-radius:5px; padding:10px">
+			 <h3><img src="static/smileys/happy.png" style="width:50px"> Upload Happy emotion file  </h3>
+			<form action="/uploadHappyFile" method="POST" enctype="multipart/form-data">
+				
+				<input type="file" name="fileToUpload" id="fileToUpload" class="btn btn-file btn-default" >
+				<input name="emotion" type="hidden" value="happy">
+				<p class="help-block">The contents of the file should contain text related to "Happy" Emotion!</p>
+				<input type="submit" value="Upload File" name="submit" class="btn btn-success">
+				
+			</form>
+			
+			</div>
+			          	<div style="border:1px solid #ccc; border-radius:5px; padding:10px ; margin-top:10px">
+			 <h3><img src="static/smileys/sad.png" style="width:50px"> Upload Sad emotion file </h3>
+			<form action="/uploadSadFile" method="post" enctype="multipart/form-data">
+				
+				<input type="file" name="fileToUpload" id="fileToUpload" class="btn btn-file btn-default" >
+								<input name="emotion" type="hidden" value="sad">
+
+				<p class="help-block">The contents of the file should contain text related to "Sad" Emotion!</p>
+				<input type="submit" value="Upload File" name="submit" class="btn btn-success">
+				
+			</form>
+			
+			</div>
+			          	<div style="border:1px solid #ccc; border-radius:5px; padding:10px ; margin-top:10px">
+			 <h3><img src="static/smileys/anger.png" style="width:50px"> Upload Anger emotion file </h3>
+			<form action="/uploadAngerFile" method="post" enctype="multipart/form-data">
+				
+				<input type="file" name="fileToUpload" id="fileToUpload" class="btn btn-file btn-default" >
+								<input name="emotion" type="hidden" value="anger">
+
+				<p class="help-block">The contents of the file should contain text related to "Anger" Emotion!</p>
+				<input type="submit" value="Upload File" name="submit" class="btn btn-success">
+				
+			</form>
+			
+			</div>
+			          	<div style="border:1px solid #ccc; border-radius:5px; padding:10px ; margin-top:10px">
+			 <h3><img src="static/smileys/surprise.png" style="width:50px"> Upload Surprise emotion file </h3>
+			<form action="/uploadSurpriseFile" method="post" enctype="multipart/form-data">
+				
+				<input type="file" name="fileToUpload" id="fileToUpload" class="btn btn-file btn-default" >
+								<input name="emotion" type="hidden" value="surprise">
+
+				<p class="help-block">The contents of the file should contain text related to "Surprise" Emotion!</p>
+				<input type="submit" value="Upload File" name="submit" class="btn btn-success">
+				
+			</form>
+			
+			</div>
+			          	<div style="border:1px solid #ccc; border-radius:5px; padding:10px; margin-top:10px">
+			 <h3><img src="static/smileys/fear.jpg" style="width:50px"> Upload Fear emotion file </h3>
+			<form action="/uploadFearFile" method="post" enctype="multipart/form-data">
+				
+				<input type="file" name="fileToUpload" id="fileToUpload" class="btn btn-file btn-default" >
+								<input name="emotion" type="hidden" value="fear">
+
+				<p class="help-block">The contents of the file should contain text related to "Fear" Emotion!</p>
+				<input type="submit" value="Upload File" name="submit" class="btn btn-success">
+				
+			</form>
+			
+			</div>
+
+        </div>
+      </div>
+
+	  
+	  
+	  
+      <div class="row" id="result" style="display:none">
+      <div class="col-md-12">
+      </div>
+      <div class="col-md-6">
+      	<center>
+      	<img src="" id="result-emotion-image" height="200" width="200"><br>
+      	<h4>&nbsp;&nbsp;<span class="label label-primary" id="result-emotion-text"></span></h4>
+      	</center>
+      </div>
+      <div class="col-md-6">
+      	<div id="result-table">
+      	</div>
+      </div>
+
+    </div> <!-- /container -->
+	</div>
+      <hr>
+      <footer>
+        <p></p>
+      </footer>
+  </body>
+</html>

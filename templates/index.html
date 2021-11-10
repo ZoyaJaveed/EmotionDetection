@@ -1,0 +1,189 @@
+<html>
+<head>
+<title>Emotion Finder</title>
+<script type="text/javascript" src="static/js/jquery.min.js"></script>
+<script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+<link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="static/css/jumbotron.css">
+<link type="text/css" rel="stylesheet" href="static/css/HoldOn.min.css"/>
+<script type="text/javascript" src="static/js/HoldOn.min.js"></script>
+<link rel="stylesheet" href="static/css/font-awesome.min.css">
+
+<script type="text/javascript">
+	var smileysMap = {
+		happy : 'static/smileys/happy.png',
+		sad : 'static/smileys/sad.png',
+		anger : 'static/smileys/anger.png',
+    surprise : 'static/smileys/surprise.png',
+    fear : 'static/smileys/fear.jpg'
+	};
+
+	$(document).ready(function() {
+
+
+	var textMax = 250;
+
+	$('#textarea_feedback').html(textMax + "/" + textMax + " Characters Remaining.!");
+
+	$('#emotion-text').keyup(function() {
+		var textLength = $(this).val().length;
+		var textRemaining = textMax - textLength;
+
+		$('#textarea_feedback').html(textRemaining + "/" + textMax + " Characters Remaining.!");
+	});
+
+    $('#login').click(function() {
+      $.ajax({
+        url: "/login",
+        type:'POST',
+        beforeSend: function() {
+          if(!$("#username").val() || !$("#password").val()) {
+            alert("Enter username / password");
+            return false;
+          }
+          HoldOn.open({
+              theme:"sk-rectangle",
+              message:"<h4>Please Wait.. Logging in..!</h4>"
+          });
+          return true;
+        },
+        data : {username : $("#username").val(), password: $("#password").val()},
+        success: function(data) {
+              window.location.href = "http://127.0.0.1:5000/admin";
+         },
+        complete: function() {
+          console.log("Completed");
+          HoldOn.close();
+        }
+      });
+    });
+
+		$("#emotion-text").keyup(function() {
+			$('#result').hide();
+		});
+
+		$("#emotion-text").change(function() {
+			$('#result').hide();
+		});
+
+		$('#submit-form').click(function() {
+			$.ajax({
+				url: "/tweet",
+				type:'POST',
+				cache: false,
+				beforeSend: function() {
+					if(!$("#emotion-text").val()) {
+						alert("Enter text to find Emotion");
+						return false;
+					}
+          HoldOn.open({
+              theme:"sk-rectangle",
+              message:"<h4>Please Wait.. Finding Emotion..!</h4>"
+          });
+
+					return true;
+				},
+				data : {data : $("#emotion-text").val()},
+				success: function(data) {
+					console.log(data);
+					data = data.trim();
+					if(data == "INVALID") {
+						alert("The Entered word is INVALID!");
+						return;
+					}
+					data = $.parseJSON(data);
+					var html = "<table class='table table-striped'>";
+					html += "<tr>";
+					html += "<th>Emotion</th><th>Probability</th>";
+					for (var i = 0; i < data.length; i++) {
+						html += "<tr><td>" + data[i][0] + "</td><td>" + data[i][1] + "</td></tr>";
+					};
+					html += "</tr>";
+					html += "</table>";
+					$("#result-table").html(html);
+					var result = data[0][0];
+					$("#result-emotion-image").attr("src", smileysMap[result.toLowerCase()]);
+					$("#result-emotion-text").text(result);
+					$('#result').show();
+				},
+				complete: function() {
+					console.log("Completed");
+					HoldOn.close();
+				}
+			});
+		})
+	})
+</script>
+
+</head>
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Emotion Finder (Naive Bayes)</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <div class="navbar-form navbar-right">
+            <div class="form-group">
+              <input type="text" id="username" placeholder="Username" class="form-control">
+            </div>
+            <div class="form-group">
+              <input type="password" id="password" placeholder="Password" class="form-control">
+            </div>
+            <button type="submit" id="login" class="btn btn-success">Sign in</button>
+          </div>
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1>Emotion Finder using Naive Bayes Algorithm</h1>
+        <p>In machine learning, naive Bayes classifiers are a family of simple probabilistic classifiers based on applying Bayes' theorem with strong (naive) independence assumptions between the features.</p>
+        <p><a class="btn btn-primary btn-lg" href="https://en.wikipedia.org/wiki/Naive_Bayes_classifier" target="_blank" role="button">More On Naive &raquo;</a></p>
+      </div>
+    </div>
+
+    <div class="container">
+        <!-- Example row of columns -->
+        <div class="row">
+          <div class="col-md-12" id="input-container">
+            <h2>Find Emotion</h2>
+              <textarea id="emotion-text" class="form-control" rows="5" cols="20" maxlength="250"></textarea>
+              <br>
+              <div id="textarea_feedback"></div>
+              <br>
+              <button type="button" class="btn btn-success" id="submit-form">Find Emotion</button>
+              <!-- <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p> -->
+          </div>
+        </div>
+
+        <div class="row" id="result" style="display:none">
+        <div class="col-md-12">
+        </div>
+        <div class="col-md-6">
+          <center>
+          <img src="" id="result-emotion-image" height="200" width="200"><br>
+          <h4>&nbsp;&nbsp;<span class="label label-primary" id="result-emotion-text"></span></h4>
+          </center>
+        </div>
+        <div class="col-md-6">
+          <div id="result-table">
+          </div>
+        </div>
+
+      </div> <!-- /container -->
+    </div>
+      <hr>
+      <footer>
+        <p></p>
+      </footer>
+  </body>
+</html>
